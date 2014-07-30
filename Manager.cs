@@ -6,15 +6,16 @@
 //                                                            //
 //         File: Manager.cs                                   //
 //                                                            //
-//      Version: 0.7                                          //
+//      Version: 0.8                                          //
 //                                                            //
-//         Date: 11/09/2010                                   //
+//         Date: 05/07/2014                                   //
 //                                                            //
-//       Author: Tom Shane                                    //
+//       Author: Nathan 'Grimston' Pipes                      //
 //                                                            //
 ////////////////////////////////////////////////////////////////
 //                                                            //
-//  Copyright (c) by Tom Shane                                //
+//  Copyright (c) by Tom Shane 2010                           //
+//  Copyright (c) by Nathan Pipes 2014                        //
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
@@ -118,8 +119,8 @@ namespace TomShane.Neoforce.Controls
         private bool autoUnfocus = true;
         private bool autoCreateRenderTarget = true;
         private Cursor cursor = null;
+        private bool softwareCursor = false;
 
-        
         ////////////////////////////////////////////////////////////////////////////          
 
         #endregion
@@ -143,6 +144,15 @@ namespace TomShane.Neoforce.Controls
         {
             get { return cursor; }
             set { cursor = value; }
+        }
+
+        /// <summary>
+        /// Should a software cursor be drawn? Very handy on a PC build.
+        /// </summary>
+        public bool ShowSoftwareCursor
+        {
+            get { return softwareCursor; }
+            set { softwareCursor = value; }
         }
         ////////////////////////////////////////////////////////////////////////////            
 
@@ -1150,47 +1160,47 @@ namespace TomShane.Neoforce.Controls
 
                 //if (targetFrames == 0 || (ms == 0 || ms >= (1000f / targetFrames)))
                 //{
-                    TimeSpan span = TimeSpan.FromTicks(drawTime);
-                    gameTime = new GameTime(gameTime.TotalGameTime, span);
-                    drawTime = 0;
+                TimeSpan span = TimeSpan.FromTicks(drawTime);
+                gameTime = new GameTime(gameTime.TotalGameTime, span);
+                drawTime = 0;
 
-                    if ((controls != null))
+                if ((controls != null))
+                {
+                    ControlsList list = new ControlsList();
+                    list.AddRange(controls);
+
+                    foreach (Control c in list)
                     {
-                        ControlsList list = new ControlsList();
-                        list.AddRange(controls);
+                        c.PrepareTexture(renderer, gameTime);
+                    }
 
+                    GraphicsDevice.SetRenderTarget(renderTarget);
+                    GraphicsDevice.Clear(Color.Transparent);
+
+                    if (renderer != null)
+                    {
                         foreach (Control c in list)
                         {
-                            c.PrepareTexture(renderer, gameTime);
-                        }
-
-                        GraphicsDevice.SetRenderTarget(renderTarget);
-                        GraphicsDevice.Clear(Color.Transparent);
-
-                        if (renderer != null)
-                        {
-                            foreach (Control c in list)
-                            {
-                                c.Render(renderer, gameTime);
-                            }
+                            c.Render(renderer, gameTime);
                         }
                     }
+                }
 
-                    if (Cursor != null)
+                if (softwareCursor && Cursor != null)
+                {
+                    if (this.cursor.CursorTexture == null)
                     {
-                        if (this.cursor.CursorTexture == null)
-                        {
-                            this.cursor.CursorTexture = Texture2D.FromStream(GraphicsDevice, new FileStream(
-                                this.cursor.cursorPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None));
-                        }
-                        renderer.SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-                        MouseState mstate = Mouse.GetState();
-                        Rectangle rect = new Rectangle(mstate.X, mstate.Y, Cursor.Width, Cursor.Height);
-                        renderer.SpriteBatch.Draw(Cursor.CursorTexture, rect, null, Color.White, 0f, Cursor.HotSpot, SpriteEffects.None, 0f);
-                        renderer.SpriteBatch.End();
+                        this.cursor.CursorTexture = Texture2D.FromStream(GraphicsDevice, new FileStream(
+                            this.cursor.cursorPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None));
                     }
+                    renderer.SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+                    MouseState mstate = Mouse.GetState();
+                    Rectangle rect = new Rectangle(mstate.X, mstate.Y, Cursor.Width, Cursor.Height);
+                    renderer.SpriteBatch.Draw(Cursor.CursorTexture, rect, null, Color.White, 0f, Cursor.HotSpot, SpriteEffects.None, 0f);
+                    renderer.SpriteBatch.End();
+                }
 
-                    GraphicsDevice.SetRenderTarget(null);
+                GraphicsDevice.SetRenderTarget(null);
                 //}
             }
             else

@@ -851,6 +851,11 @@ namespace TomShane.Neoforce.Controls
         {
             base.Initialize();
 
+            Game.Window.ClientSizeChanged += (object sender, System.EventArgs e) => 
+            { 
+                InvalidateRenderTarget(); 
+            };
+
             if (autoCreateRenderTarget)
             {
                 if (renderTarget != null)
@@ -1145,6 +1150,7 @@ namespace TomShane.Neoforce.Controls
                 if (renderTarget != null) RenderTarget.Dispose();
                 RenderTarget = CreateRenderTarget();
                 renderer = new Renderer(this);
+                renderTargetValid = true;
             }
             Draw(gameTime);
         }

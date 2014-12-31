@@ -154,12 +154,26 @@ namespace TomShane.Neoforce.Controls
     private string Separator = "\n";
     private string text = "";
     private string buffer = "";
-    private bool autoSelection = true;   
+    private bool autoSelection = true;
+    private string placeholder = "";
+    private Color placeholderColor = Color.LightGray;
     ////////////////////////////////////////////////////////////////////////////
 
     #endregion
 
     #region //// Properties ////////
+
+    public string Placeholder
+    {
+        get { return placeholder; }
+        set { placeholder = value; }
+    }
+
+    public Color PlaceholderColor
+    {
+        get { return placeholderColor; }
+        set { placeholderColor = value; }
+    }
 
     ////////////////////////////////////////////////////////////////////////////    
     private int PosX
@@ -606,6 +620,12 @@ namespace TomShane.Neoforce.Controls
         {
           linesDrawn = 0;
           vert.Value = 0;
+        }
+
+        if(string.IsNullOrEmpty(text))
+        {
+            Rectangle rx = new Rectangle(r.Left - horz.Value, r.Top, r.Width, r.Height);
+            renderer.DrawString(font, placeholder, rx, placeholderColor, al, false);
         }
 
         if (drawsel)

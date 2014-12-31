@@ -52,9 +52,9 @@ namespace TomShane.Neoforce.Controls
 		#region //// Methods ///////////
 			
 		////////////////////////////////////////////////////////////////////////////
-		protected override void DrawControl(Renderer renderer, Rectangle rect, GameTime gameTime)
-    {            
-      base.DrawControl(renderer, rect, gameTime);
+    protected override void DrawControl(Renderer renderer, Rectangle rect, GameTime gameTime)
+    {
+        base.DrawControl(renderer, rect, gameTime);
     }
 		////////////////////////////////////////////////////////////////////////////   		
     

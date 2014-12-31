@@ -34,6 +34,7 @@ namespace TomShane.Neoforce.Controls
     {
         Default,
         None,
+        Additive,
     }
 
     #region //// Classes ///////////
@@ -98,6 +99,13 @@ namespace TomShane.Neoforce.Controls
         private SpriteBatch sb = null;
         private DeviceStates states = new DeviceStates();
         private BlendingMode bmode = BlendingMode.Default;
+        private Matrix? customMatrix;
+
+        public Matrix? CustomMatrix
+        {
+            get { return customMatrix; }
+            set { customMatrix = value; }
+        }
         ////////////////////////////////////////////////////////////////////////////
 
         #endregion
@@ -162,11 +170,31 @@ namespace TomShane.Neoforce.Controls
             bmode = mode;
             if (mode != BlendingMode.None)
             {
-                sb.Begin(SpriteSortMode.Immediate, states.BlendState, states.SamplerState, states.DepthStencilState, states.RasterizerState);
+                BlendState state = states.BlendState;
+                if (mode == BlendingMode.Additive)
+                {
+                    state = BlendState.Additive;
+                }
+
+                if (this.customMatrix.HasValue)
+                {
+                    sb.Begin(SpriteSortMode.Immediate, state, states.SamplerState, states.DepthStencilState, states.RasterizerState, null, this.customMatrix.Value);
+                }
+                else
+                {
+                    sb.Begin(SpriteSortMode.Immediate, state, states.SamplerState, states.DepthStencilState, states.RasterizerState);
+                }
             }
             else
             {
-                sb.Begin(SpriteSortMode.Immediate, BlendState.Opaque, states.SamplerState, states.DepthStencilState, states.RasterizerState);
+                if (this.customMatrix.HasValue)
+                {
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Opaque, states.SamplerState, states.DepthStencilState, states.RasterizerState, null, this.customMatrix.Value);
+                }
+                else
+                {
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Opaque, states.SamplerState, states.DepthStencilState, states.RasterizerState);
+                }
             }
         }
         ////////////////////////////////////////////////////////////////////////////
@@ -194,8 +222,14 @@ namespace TomShane.Neoforce.Controls
             {
                 End();
 
-                sb.Begin(SpriteSortMode.Texture, BlendState.AlphaBlend, SamplerState.LinearWrap, DepthStencilState.Default, RasterizerState.CullNone);
-
+                if (this.customMatrix.HasValue)
+                {
+                    sb.Begin(SpriteSortMode.Texture, BlendState.AlphaBlend, SamplerState.LinearWrap, DepthStencilState.Default, RasterizerState.CullNone, null, this.customMatrix.Value);
+                }
+                else
+                {
+                    sb.Begin(SpriteSortMode.Texture, BlendState.AlphaBlend, SamplerState.LinearWrap, DepthStencilState.Default, RasterizerState.CullNone);
+                }
                 sb.Draw(texture, new Vector2(destination.X,destination.Y), destination, color, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
 
                 End();

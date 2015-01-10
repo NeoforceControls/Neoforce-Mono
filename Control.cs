@@ -870,6 +870,12 @@ namespace TomShane.Neoforce.Controls
             }
             set
             {
+                if (value < 0 && Parent != null && value > int.MinValue)
+                {
+                    var mult = value / -100f;
+                    value = (int)(parent.Width * mult);
+                }
+
                 if (width != value)
                 {
                     int old = width;
@@ -905,6 +911,12 @@ namespace TomShane.Neoforce.Controls
             }
             set
             {
+                if (value < 0 && Parent != null && value > int.MinValue)
+                {
+                    var mult = value / -100f;
+                    value = (int)(parent.Height * mult);
+                }
+
                 if (height != value)
                 {
                     int old = height;
